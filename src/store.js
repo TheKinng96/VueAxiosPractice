@@ -24,6 +24,12 @@ export default new Vuex.Store({
         clearData(state){
             state.userId = null;
             state.idToken = null;
+        },
+        loginFailed(state) {
+            state.loginError = true
+        },
+        clearFailed(state) {
+            state.loginError = null
         }
     },
     actions: {
@@ -51,8 +57,16 @@ export default new Vuex.Store({
                     localStorage.setItem('userId', response.data.userId)
                     dispatch('storeUser', authData)
                     dispatch('setLogoutTimer', response.data.expiresIn)
+
+                    if (response.status === 200){
+                        console.log('200')
+                        router.replace('/dashboard')
+                    }
                 })
-                .catch(error => console.log(error))
+                .catch(error => {
+                    console.log(error)
+                    commit('loginFailed')
+                })
         },
         signin({commit, dispatch}, authData) {
             axios.post('/accounts:signInWithPassword?key=AIzaSyBziIMIOQ2yPdKXNb-wG6cfMoco4w8Eqjg', {
@@ -71,10 +85,15 @@ export default new Vuex.Store({
                 localStorage.setItem('userId', response.data.userId)
                 localStorage.setItem('expirationDate', expirationDate)
                 dispatch('setLogoutTimer', response.data.expiresIn)
+
+                if (response.status === 200){
+                    console.log('200')
+                    router.replace('/dashboard')
+                }
             })
                 .catch(error => {
                     console.log(error)
-
+                    commit('loginFailed')
                 })
         },
         storeUser ({state}, userData){
@@ -92,17 +111,22 @@ export default new Vuex.Store({
             globalAxios.get('/users.json' + '?auth=' + state.idToken)
                 .then(res => {
                     const data = res.data;
-                    const users = []
+                    const users = [];
+                    // const loginUser = {};
                     for (let key in data) {
                         const user = data[key]
                         user.id = key;
                         users.push(user)
                     }
+                    console.log(res.data)
+                    console.log(users)
+
                     commit('storeUser', users[0])
                 }).catch(err => console.log(err))
         },
         logout({commit}) {
             commit('clearData')
+            commit('clearFailed')
             localStorage.removeItem('token')
             localStorage.removeItem('expirationDate')
             localStorage.removeItem('userId')
@@ -131,6 +155,9 @@ export default new Vuex.Store({
         },
         isAuthenticated(state){
             return state.idToken !== null
+        },
+        loginFailed(state){
+            return state.loginError
         }
     }
 })

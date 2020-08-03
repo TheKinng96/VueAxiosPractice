@@ -2,8 +2,11 @@
   <div id="signin">
     <div class="signin-form">
       <form @submit.prevent="onSubmit">
+        <div class="failed-message" v-if="loginFailedMessage">
+          <p>Email address and Password are not matched</p>
+        </div>
         <div class="input">
-          <label for="email">Mail</label>
+          <label for="email">Email</label>
           <input
               type="email"
               id="email"
@@ -41,6 +44,14 @@ export default {
       console.log(formData)
       this.$store.dispatch('signin', {email: formData.email, password: formData.password})
     }
+  },
+  computed: {
+    loginFailedMessage() {
+        return this.$store.getters.loginFailed;
+    }
+  },
+  watch: {
+
   }
 }
 </script>
@@ -100,4 +111,16 @@ export default {
   color: #ccc;
   cursor: not-allowed;
 }
+
+.failed-message {
+  color: red;
+  font-size: 1.1rem;
+  border: 1px solid red;
+  padding: 0.5rem;
+}
+
+.failed-message p {
+  padding-left: 8px;
+}
+
 </style>

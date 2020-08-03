@@ -10,11 +10,12 @@ import SigninPage from './components/auth/signin.vue'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/', component: WelcomePage },
+  { path: '/', component: WelcomePage, name: 'Home' },
   { path: '/signup', component: SignupPage },
   { path: '/signin', component: SigninPage },
   { path: '/dashboard',
     component: DashboardPage,
+    name: 'dashboard',
     beforeEnter (to, from, next) {
       if (store.state.idToken){
         next();
