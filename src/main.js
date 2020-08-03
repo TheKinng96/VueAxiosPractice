@@ -7,6 +7,16 @@ import store from './store'
 
 axios.defaults.baseURL = 'https://vuehttppractice-1e595.firebaseio.com/'
 
+axios.interceptors.request.use(config => {
+  console.log('request interceptor',config)
+  return config
+})
+
+axios.interceptors.response.use(res => {
+  console.log('res interceptor', res)
+  return res
+})
+
 new Vue({
   el: '#app',
   router,
