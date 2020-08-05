@@ -21,18 +21,20 @@
               v-model.number="age">
           <p v-if="!$v.age.minVal">You must be at least {{ $v.age.$params.minVal.min }} years old to register.</p>
         </div>
-        <div class="input">
+        <div class="input" :class="{invalid: $v.password.$error}">
           <label for="password">Password</label>
           <input
               type="password"
               id="password"
+              @blur="$v.password.$touch()"
               v-model="password">
         </div>
-        <div class="input">
+        <div class="input" :class="{invalid: $v.confirmPassword.$error}">
           <label for="confirm-password">Confirm Password</label>
           <input
               type="password"
               id="confirm-password"
+              @blur="$v.confirmPassword.$touch()"
               v-model="confirmPassword">
         </div>
         <div class="input">
@@ -61,8 +63,14 @@
             </div>
           </div>
         </div>
-        <div class="input inline">
-          <input type="checkbox" id="terms" v-model="terms">
+        <div class="input inline" :class="{invalid: $v.terms.$invalid}">
+          <input
+              type="checkbox"
+              id="terms"
+              true-value="yes"
+              false-value=""
+              @change="$v.terms.$touch()"
+              v-model="terms">
           <label for="terms">Accept Terms of Use</label>
         </div>
         <div class="submit">
@@ -74,7 +82,7 @@
 </template>
 
 <script>
-import {required, email, numeric, minValue, minLength} from 'vuelidate/lib/validators'
+import {required, email, numeric, minValue, minLength, sameAs, requiredUnless} from 'vuelidate/lib/validators'
 
 export default {
   data() {
@@ -85,7 +93,7 @@ export default {
       confirmPassword: '',
       country: 'usa',
       hobbyInputs: [],
-      terms: false
+      terms: ''
     }
   },
   validations: {
@@ -100,7 +108,15 @@ export default {
     },
     password: {
       required,
-
+      minLen: minLength(8)
+    },
+    confirmPassword: {
+      sameAs: sameAs ('password')
+    },
+    terms: {
+      required: requiredUnless(vm => {
+        return vm.country === 'germany'
+      })
     }
   },
   methods: {
